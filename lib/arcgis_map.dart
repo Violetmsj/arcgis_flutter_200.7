@@ -2,6 +2,7 @@ import 'dart:math';
 
 import 'package:arcgis_flutter_newest/config/tianditu_config.dart';
 import 'package:arcgis_flutter_newest/utils/graphics_manager.dart';
+import 'package:arcgis_flutter_newest/utils/image_overlay_manager.dart';
 import 'package:arcgis_flutter_newest/utils/point_util.dart';
 import 'package:arcgis_maps/arcgis_maps.dart';
 import 'package:flutter/material.dart';
@@ -40,6 +41,7 @@ class _MainAppState extends State<MainApp> {
     return 591657527.591555 / pow(2, level);
   }
 
+  final _imageOverlayManager = ImageOverlayManager();
   Future<void> onMapViewReady() async {
     try {
       final map = ArcGISMap(spatialReference: SpatialReference.webMercator);
@@ -47,8 +49,7 @@ class _MainAppState extends State<MainApp> {
       final imgLayer = TianDiTuConfig.createImgLayer();
       // 创建天地图注记图层
       final annotationLayer = TianDiTuConfig.createAnnotationLayer();
-      final image = await ArcGISImage.fromAsset('assets/image/test_image.png');
-      // 修改 Envelope 的创建部分
+      // 创建Envelope部分
       final envelopeWGS84 = Envelope.fromXY(
         xMin: 85.452456,
         yMin: 44.849842,
@@ -56,21 +57,11 @@ class _MainAppState extends State<MainApp> {
         yMax: 44.856219,
         spatialReference: SpatialReference.wgs84,
       );
-      // 将 WGS84 坐标转换为 Web Mercator
-      final envelopeWebMercator =
-          GeometryEngine.project(
-                envelopeWGS84,
-                outputSpatialReference: SpatialReference.webMercator,
-              )
-              as Envelope;
-
-      ImageFrame imageFrame = ImageFrame.withImageEnvelope(
-        image: image,
-        extent: envelopeWebMercator,
+      // 使用管理器创建ImageOverlay
+      final imageOverlay = await _imageOverlayManager.createImageOverlay(
+        imagePath: 'assets/image/test_image.png',
+        extent: envelopeWGS84,
       );
-      ImageOverlay imageOverlay = ImageOverlay(imageFrame: imageFrame);
-      imageOverlay.isVisible = true;
-      imageOverlay.opacity = 1;
       // 将图层添加到地图中
       map.operationalLayers.addAll([imgLayer, annotationLayer]);
 

@@ -4,32 +4,22 @@ import 'package:flutter/material.dart';
 class GraphicsStyleConfig {
   /// 点图形样式
   static SimpleMarkerSymbol get defaultPointSymbol => SimpleMarkerSymbol(
-        style: SimpleMarkerSymbolStyle.circle,
-        color: Colors.blue,
-        size: 12,
-      );
+    style: SimpleMarkerSymbolStyle.circle,
+    color: Colors.blue,
+    size: 12,
+  );
 
   /// 线图形样式
   static SimpleLineSymbol get defaultLineSymbol => SimpleLineSymbol(
-        style: SimpleLineSymbolStyle.solid,
-        color: Colors.blue,
-        width: 2,
-      );
+    style: SimpleLineSymbolStyle.solid,
+    color: Colors.blue,
+    width: 2,
+  );
 
   /// 面图形样式
   static SimpleFillSymbol get defaultPolygonSymbol => SimpleFillSymbol(
-        style: SimpleFillSymbolStyle.solid,
-        color: Colors.transparent,
-        outline: defaultLineSymbol,
-      );
-
-  /// 图片多边形样式
-  static PictureFillSymbol defaultImagePolygonSymbol(ArcGISImage image) {
-    final symbol = PictureFillSymbol.withImage(
-      image,
-    );
-    symbol.width = 500;
-    symbol.height = 500;
-    return symbol;
-  }
+    style: SimpleFillSymbolStyle.solid,
+    color: Colors.transparent,
+    outline: defaultLineSymbol,
+  );
 }
