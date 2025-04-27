@@ -64,7 +64,8 @@ class _MainAppState extends State<MainApp> {
       );
       // 将图层添加到地图中
       map.operationalLayers.addAll([imgLayer, annotationLayer]);
-
+      var polygonFeatureLayer = await _addFeatureLayer();
+      // map.operationalLayers.add(polygonFeatureLayer);
       // 隐藏地图右下角的版权信息
       _mapViewController.isAttributionTextVisible = false;
       _mapViewController.arcGISMap = map;
@@ -76,14 +77,95 @@ class _MainAppState extends State<MainApp> {
       _mapViewController.imageOverlays.add(imageOverlay);
       _mapViewController.setViewpoint(
         Viewpoint.withLatLongScale(
-          latitude: 44.856219,
-          longitude: 85.452456,
+          // lat: 44.341538, lng: 86.008825 点
+          // 图片经纬度
+          // latitude: 44.856219,
+          // longitude: 85.452456,
+          latitude: 44.341538,
+          longitude: 86.008825,
           scale: levelToScale(15),
         ),
       );
     } catch (e) {
       print('地图初始化错误: $e');
     }
+  }
+
+  Future<FeatureLayer> _addFeatureLayer() async {
+    // 定义字段
+    final fields = [
+      Field.text(name: 'id', alias: '地块编号', length: 20),
+      Field.text(name: 'name', alias: '地块名称', length: 20),
+      Field.double(name: 'areaComp', alias: '地块面积'),
+      Field.text(name: 'location', alias: '地块地点', length: 100),
+      Field.date(name: 'latLot', alias: '地块边界'),
+      Field.text(name: 'soliType', alias: '地块类型', length: 20),
+    ];
+    // 创建要素集合表
+    final featureTable = FeatureCollectionTable(
+      fields: fields,
+      geometryType: GeometryType.polygon,
+      spatialReference: SpatialReference.wgs84,
+    );
+    // 设置表的字段
+    featureTable.fields.addAll(fields);
+
+    // 创建要素图层
+    final featureLayer = FeatureLayer.withFeatureTable(featureTable);
+    // 创建多边形几何
+    final polygonPoints = <ArcGISPoint>[];
+    final latLotList = [
+      [85.452483, 44.856212],
+      [85.452456, 44.856219],
+      [85.458053, 44.856152],
+      [85.458042, 44.849842],
+      [85.45257, 44.850045],
+      [85.452483, 44.856212],
+    ];
+
+    for (var latLot in latLotList) {
+      var point = PointUtil.WGS84Point(lat: latLot[1], lng: latLot[0]);
+      polygonPoints.add(point);
+    }
+
+    final polygon = PolygonBuilder(spatialReference: SpatialReference.wgs84);
+    for (var point in polygonPoints) {
+      polygon.addPoint(point);
+    }
+    // 创建要素
+    final feature = featureTable.createFeature(
+      attributes: {
+        'id': 'h8WkShXTiULvVmccHZNn4i',
+        'name': '测试地块1',
+        'areaComp': 454.07,
+        'location': '塔城地区 新疆维吾尔自治区塔城地区沙湾市兵团一二一团S20五克高速',
+        'soliType': '盐化灰漠土',
+      },
+      geometry: polygon.toGeometry(),
+    );
+
+    // 添加要素到表中
+    await featureTable.addFeature(feature);
+
+    // 设置要素图层的渲染器
+    final symbol = SimpleFillSymbol(
+      style: SimpleFillSymbolStyle.solid,
+      color: Colors.blue.withOpacity(0.3),
+      outline: SimpleLineSymbol(
+        style: SimpleLineSymbolStyle.solid,
+        color: Colors.blue,
+        width: 2,
+      ),
+    );
+
+    final renderer = SimpleRenderer(symbol: symbol);
+    featureLayer.renderer = renderer;
+    return featureLayer;
+    // 添加图层到地图
+    // _mapViewController.operationalLayers.add(featureLayer);
+
+    // 缩放到要素范围
+    // _mapViewController.setViewpointGeometry(polygon);
   }
 
   @override
