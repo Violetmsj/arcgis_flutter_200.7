@@ -4,6 +4,7 @@ import 'package:arcgis_flutter_newest/config/tianditu_config.dart';
 import 'package:arcgis_flutter_newest/utils/graphics_manager.dart';
 import 'package:arcgis_flutter_newest/utils/image_overlay_manager.dart';
 import 'package:arcgis_flutter_newest/utils/point_util.dart';
+import 'package:arcgis_flutter_newest/widget/center_crosser.dart';
 import 'package:arcgis_maps/arcgis_maps.dart';
 import 'package:flutter/material.dart';
 
@@ -27,18 +28,6 @@ class _MainAppState extends State<MainApp> {
       // print('点击位置的地理坐标：');
       // print('经度：${mapPoint.x}');
       // print('纬度：${mapPoint.y}');
-      // 添加地块识别功能
-      // final identifyResults = await _mapViewController.identifyLayers(
-      //   // _featureCollectionLayer, // 替换为你的要素图层变量
-      //   screenPoint: details,
-      //   tolerance: 22, // 点击容差（像素）
-      //   maximumResultsPerLayer: 10,
-      // );
-      // var identifyTotal = 0;
-      // final layerCounts = <String>[];
-      // for (final result in identifyResults) {
-      //   print(result);
-      // }
       final identifyResult = await _mapViewController.identifyLayer(
         _featureCollectionLayer, // 替换为你的要素图层变量
         screenPoint: details,
@@ -129,7 +118,7 @@ class _MainAppState extends State<MainApp> {
       // 使用图形管理器添加图形
       final graphicsManager = GraphicsManager();
       graphicsManager.addAllGraphics();
-      // _mapViewController.graphicsOverlays.add(graphicsManager.overlay);
+      _mapViewController.graphicsOverlays.add(graphicsManager.overlay);
 
       _mapViewController.imageOverlays.add(imageOverlay);
       _mapViewController.setViewpoint(
@@ -240,21 +229,79 @@ class _MainAppState extends State<MainApp> {
     return featureCollectionLayer;
   }
 
+  Widget _buildJumpButton({
+    required String title,
+    required Map<String, double> latLng,
+  }) {
+    return ElevatedButton(
+      onPressed: () {
+        _mapViewController.setViewpoint(
+          Viewpoint.withLatLongScale(
+            latitude: latLng['lat']!,
+            longitude: latLng['lng']!,
+            scale: levelToScale(15),
+          ),
+        );
+      },
+      child: Text(title),
+    );
+  }
+
+  // 地图跳转按钮
+  Widget _buildJumpButtonsView() {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+      children: [
+        _buildJumpButton(
+          title: "贴图点",
+          latLng: {"lat": 44.856219, "lng": 85.452456},
+        ),
+        _buildJumpButton(
+          title: "FeatureLayer",
+          latLng: {"lat": 45.089596, "lng": 85.265665},
+        ),
+        _buildJumpButton(
+          title: "graphics",
+          latLng: {"lat": 44.341538, "lng": 86.008825},
+        ),
+      ],
+    );
+  }
+
+  // 地图占位
+  Widget _buildMapScreen() {
+    return Container(color: Colors.grey);
+  }
+
+  Widget _buildMapView() {
+    return Expanded(
+      child: ArcGISMapView(
+        controllerProvider: () => _mapViewController,
+        onMapViewReady: onMapViewReady,
+        onTap: onMapTap,
+      ),
+    );
+  }
+
+  // 主视图
+  Widget _buildView() {
+    return Stack(
+      children: <Widget>[
+        // 地图占位
+        _buildMapScreen(),
+        // 地图
+        _buildMapView(),
+        _buildJumpButtonsView(),
+        CenterCrosser(),
+      ],
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: Text("地图页"), backgroundColor: Colors.blue),
-      body: Column(
-        children: [
-          Expanded(
-            child: ArcGISMapView(
-              controllerProvider: () => _mapViewController,
-              onMapViewReady: onMapViewReady,
-              onTap: onMapTap,
-            ),
-          ),
-        ],
-      ),
+      body: _buildView(),
     );
   }
 }
