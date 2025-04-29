@@ -18,6 +18,7 @@ class MainApp extends StatefulWidget {
 class _MainAppState extends State<MainApp> {
   final _mapViewController = ArcGISMapView.createController();
   late FeatureCollectionLayer _featureCollectionLayer; // 保存要素图层
+  late Offset mapCenterOffset; // 地图中心屏幕坐标
   onMapTap(Offset details) async {
     // 将屏幕坐标转换为地图坐标
     final mapPoint = await PointUtil.screenToWGS84(
@@ -270,10 +271,38 @@ class _MainAppState extends State<MainApp> {
   }
 
   Widget _buildMapView() {
-    return ArcGISMapView(
-      controllerProvider: () => _mapViewController,
-      onMapViewReady: onMapViewReady,
-      onTap: onMapTap,
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        mapCenterOffset = Offset(
+          constraints.maxWidth / 2,
+          constraints.maxHeight / 2,
+        );
+        return ArcGISMapView(
+          controllerProvider: () => _mapViewController,
+          onMapViewReady: onMapViewReady,
+          onTap: onMapTap,
+        );
+      },
+    );
+  }
+
+  // 绘制多边形打点
+  onStartDrawPolygon() {
+    print(mapCenterOffset);
+  }
+
+  // 地图跳转按钮
+  Widget _buildDrawButtonsView() {
+    return Positioned(
+      left: 0,
+      right: 0,
+      bottom: 20, // 距离底部20像素
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+        children: [
+          ElevatedButton(onPressed: onStartDrawPolygon, child: Text("打点")),
+        ],
+      ),
     );
   }
 
@@ -285,6 +314,7 @@ class _MainAppState extends State<MainApp> {
         _buildMapView(),
         _buildJumpButtonsView(),
         CenterCrosser(),
+        _buildDrawButtonsView(),
       ],
     );
   }
