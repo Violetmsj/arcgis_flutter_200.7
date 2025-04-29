@@ -229,6 +229,7 @@ class _MainAppState extends State<MainApp> {
     return featureCollectionLayer;
   }
 
+  // 跳转按钮组件
   Widget _buildJumpButton({
     required String title,
     required Map<String, double> latLng,
@@ -268,18 +269,11 @@ class _MainAppState extends State<MainApp> {
     );
   }
 
-  // 地图占位
-  Widget _buildMapScreen() {
-    return Container(color: Colors.grey);
-  }
-
   Widget _buildMapView() {
-    return Expanded(
-      child: ArcGISMapView(
-        controllerProvider: () => _mapViewController,
-        onMapViewReady: onMapViewReady,
-        onTap: onMapTap,
-      ),
+    return ArcGISMapView(
+      controllerProvider: () => _mapViewController,
+      onMapViewReady: onMapViewReady,
+      onTap: onMapTap,
     );
   }
 
@@ -287,8 +281,6 @@ class _MainAppState extends State<MainApp> {
   Widget _buildView() {
     return Stack(
       children: <Widget>[
-        // 地图占位
-        _buildMapScreen(),
         // 地图
         _buildMapView(),
         _buildJumpButtonsView(),
