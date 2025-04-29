@@ -1,5 +1,6 @@
 import 'dart:math';
 
+import 'package:arcgis_flutter_newest/config/graphics_style_config.dart';
 import 'package:arcgis_flutter_newest/config/tianditu_config.dart';
 import 'package:arcgis_flutter_newest/utils/graphics_manager.dart';
 import 'package:arcgis_flutter_newest/utils/image_overlay_manager.dart';
@@ -120,7 +121,7 @@ class _MainAppState extends State<MainApp> {
       final graphicsManager = GraphicsManager();
       graphicsManager.addAllGraphics();
       _mapViewController.graphicsOverlays.add(graphicsManager.overlay);
-
+      _mapViewController.graphicsOverlays.add(drawPolygongraphicsOverlay);
       _mapViewController.imageOverlays.add(imageOverlay);
       _mapViewController.setViewpoint(
         Viewpoint.withLatLongScale(
@@ -286,11 +287,38 @@ class _MainAppState extends State<MainApp> {
     );
   }
 
+  var drawPolygonPoints = <ArcGISPoint>[]; //绘制多边形的坐标数组
+  var drawPolygongraphicsOverlay = GraphicsOverlay();
+  var drawPolygonBuilder = PolygonBuilder(
+    spatialReference: SpatialReference.wgs84,
+  );
+
   // 绘制多边形打点
-  onStartDrawPolygon() {
-    print(mapCenterOffset);
+  onStartDrawPolygon() async {
+    final drawPolygonPoint = await PointUtil.screenToWGS84(
+      mapController: _mapViewController,
+      screenPoint: mapCenterOffset,
+    );
+
+    if (drawPolygonPoint == null) {
+      return;
+    }
+    drawPolygonPoints.add(drawPolygonPoint);
+    drawPolygonBuilder.addPoint(drawPolygonPoint);
+    Polygon polygon = drawPolygonBuilder.toGeometry() as Polygon;
+    var graphic = Graphic(
+      geometry: polygon,
+      symbol: GraphicsStyleConfig.defaultPolygonSymbol,
+    );
+    // 清除之前的图形
+    drawPolygongraphicsOverlay.graphics.clear();
+    // 添加新的图形
+    drawPolygongraphicsOverlay.graphics.add(graphic);
+    print(drawPolygonPoint);
   }
 
+  onFinishDrawPolygon() {}
+  onUndoLastPoint() {}
   // 地图跳转按钮
   Widget _buildDrawButtonsView() {
     return Positioned(
@@ -301,6 +329,8 @@ class _MainAppState extends State<MainApp> {
         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
         children: [
           ElevatedButton(onPressed: onStartDrawPolygon, child: Text("打点")),
+          ElevatedButton(onPressed: onFinishDrawPolygon, child: Text("完成绘制")),
+          ElevatedButton(onPressed: onUndoLastPoint, child: Text("撤回(返回上一步)")),
         ],
       ),
     );
