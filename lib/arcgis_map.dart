@@ -122,6 +122,7 @@ class _MainAppState extends State<MainApp> {
       graphicsManager.addAllGraphics();
       _mapViewController.graphicsOverlays.add(graphicsManager.overlay);
       _mapViewController.graphicsOverlays.add(drawPolygonGraphicsOverlay);
+      _mapViewController.graphicsOverlays.add(drawPolygonPointsOverlay);
       _mapViewController.imageOverlays.add(imageOverlay);
       _mapViewController.setViewpoint(
         Viewpoint.withLatLongScale(
@@ -289,6 +290,7 @@ class _MainAppState extends State<MainApp> {
 
   var drawPolygonPoints = <ArcGISPoint>[]; //绘制多边形的坐标数组
   var drawPolygonGraphicsOverlay = GraphicsOverlay();
+  var drawPolygonPointsOverlay = GraphicsOverlay();
   var drawPolygonBuilder = PolygonBuilder(
     spatialReference: SpatialReference.wgs84,
   );
@@ -312,7 +314,7 @@ class _MainAppState extends State<MainApp> {
     );
     // 清除之前的图形
     drawPolygonGraphicsOverlay.graphics.clear();
-
+    drawPolygonPointsOverlay.graphics.clear();
     // 1. 添加新的图形
     drawPolygonGraphicsOverlay.graphics.add(graphic);
     // 2. 为每个点添加点标记
@@ -321,7 +323,7 @@ class _MainAppState extends State<MainApp> {
         geometry: point,
         symbol: GraphicsStyleConfig.drawPolygonPointSymbol,
       );
-      drawPolygonGraphicsOverlay.graphics.add(pointGraphic);
+      drawPolygonPointsOverlay.graphics.add(pointGraphic);
     }
   }
 
@@ -364,6 +366,7 @@ class _MainAppState extends State<MainApp> {
     );
     // 清除之前的图形
     drawPolygonGraphicsOverlay.graphics.clear();
+    drawPolygonPointsOverlay.graphics.clear();
     //  添加新的图形
     drawPolygonGraphicsOverlay.graphics.add(graphic);
     // 2. 为每个点添加点标记
@@ -372,7 +375,7 @@ class _MainAppState extends State<MainApp> {
         geometry: point,
         symbol: GraphicsStyleConfig.drawPolygonPointSymbol,
       );
-      drawPolygonGraphicsOverlay.graphics.add(pointGraphic);
+      drawPolygonPointsOverlay.graphics.add(pointGraphic);
     }
   }
 
@@ -406,6 +409,7 @@ class _MainAppState extends State<MainApp> {
     ); // 重置 PolygonBuilder
     // 清除之前的图形
     drawPolygonGraphicsOverlay.graphics.clear();
+    drawPolygonPointsOverlay.graphics.clear();
   }
 
   // 添加状态变量
@@ -421,6 +425,7 @@ class _MainAppState extends State<MainApp> {
           spatialReference: SpatialReference.wgs84,
         );
         drawPolygonGraphicsOverlay.graphics.clear();
+        drawPolygonPointsOverlay.graphics.clear();
       }
     });
   }
