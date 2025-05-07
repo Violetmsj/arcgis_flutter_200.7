@@ -407,7 +407,24 @@ class _MainAppState extends State<MainApp> {
     drawPolygongraphicsOverlay.graphics.clear();
   }
 
-  // 地图跳转按钮
+  // 添加状态变量
+  bool isDrawingMode = false;
+  // 切换画地模式
+  void toggleDrawingMode() {
+    setState(() {
+      isDrawingMode = !isDrawingMode;
+      if (!isDrawingMode) {
+        // 退出画地模式时清除所有绘制内容
+        drawPolygonPoints.clear();
+        drawPolygonBuilder = PolygonBuilder(
+          spatialReference: SpatialReference.wgs84,
+        );
+        drawPolygongraphicsOverlay.graphics.clear();
+      }
+    });
+  }
+
+  // 画地功能按钮
   Widget _buildDrawButtonsView() {
     return Positioned(
       left: 0,
@@ -416,9 +433,15 @@ class _MainAppState extends State<MainApp> {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
         children: [
-          ElevatedButton(onPressed: onStartDrawPolygon, child: Text("打点")),
-          ElevatedButton(onPressed: onFinishDrawPolygon, child: Text("完成绘制")),
-          ElevatedButton(onPressed: onUndoLastPoint, child: Text("撤回(返回上一步)")),
+          ElevatedButton(
+            onPressed: toggleDrawingMode,
+            child: Text(isDrawingMode ? "结束画地" : "开始画地"),
+          ),
+          if (isDrawingMode) ...[
+            ElevatedButton(onPressed: onStartDrawPolygon, child: Text("打点")),
+            ElevatedButton(onPressed: onFinishDrawPolygon, child: Text("完成绘制")),
+            ElevatedButton(onPressed: onUndoLastPoint, child: Text("撤回")),
+          ],
         ],
       ),
     );
