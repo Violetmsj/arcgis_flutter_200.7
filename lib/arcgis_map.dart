@@ -121,7 +121,7 @@ class _MainAppState extends State<MainApp> {
       final graphicsManager = GraphicsManager();
       graphicsManager.addAllGraphics();
       _mapViewController.graphicsOverlays.add(graphicsManager.overlay);
-      _mapViewController.graphicsOverlays.add(drawPolygongraphicsOverlay);
+      _mapViewController.graphicsOverlays.add(drawPolygonGraphicsOverlay);
       _mapViewController.imageOverlays.add(imageOverlay);
       _mapViewController.setViewpoint(
         Viewpoint.withLatLongScale(
@@ -288,7 +288,7 @@ class _MainAppState extends State<MainApp> {
   }
 
   var drawPolygonPoints = <ArcGISPoint>[]; //绘制多边形的坐标数组
-  var drawPolygongraphicsOverlay = GraphicsOverlay();
+  var drawPolygonGraphicsOverlay = GraphicsOverlay();
   var drawPolygonBuilder = PolygonBuilder(
     spatialReference: SpatialReference.wgs84,
   );
@@ -311,17 +311,17 @@ class _MainAppState extends State<MainApp> {
       symbol: GraphicsStyleConfig.defaultPolygonSymbol,
     );
     // 清除之前的图形
-    drawPolygongraphicsOverlay.graphics.clear();
+    drawPolygonGraphicsOverlay.graphics.clear();
 
     // 1. 添加新的图形
-    drawPolygongraphicsOverlay.graphics.add(graphic);
+    drawPolygonGraphicsOverlay.graphics.add(graphic);
     // 2. 为每个点添加点标记
     for (var point in drawPolygonPoints) {
       var pointGraphic = Graphic(
         geometry: point,
         symbol: GraphicsStyleConfig.drawPolygonPointSymbol,
       );
-      drawPolygongraphicsOverlay.graphics.add(pointGraphic);
+      drawPolygonGraphicsOverlay.graphics.add(pointGraphic);
     }
   }
 
@@ -363,16 +363,16 @@ class _MainAppState extends State<MainApp> {
       symbol: GraphicsStyleConfig.defaultPolygonSymbol,
     );
     // 清除之前的图形
-    drawPolygongraphicsOverlay.graphics.clear();
+    drawPolygonGraphicsOverlay.graphics.clear();
     //  添加新的图形
-    drawPolygongraphicsOverlay.graphics.add(graphic);
+    drawPolygonGraphicsOverlay.graphics.add(graphic);
     // 2. 为每个点添加点标记
     for (var point in drawPolygonPoints) {
       var pointGraphic = Graphic(
         geometry: point,
         symbol: GraphicsStyleConfig.drawPolygonPointSymbol,
       );
-      drawPolygongraphicsOverlay.graphics.add(pointGraphic);
+      drawPolygonGraphicsOverlay.graphics.add(pointGraphic);
     }
   }
 
@@ -395,6 +395,7 @@ class _MainAppState extends State<MainApp> {
           );
         },
       );
+      return;
     }
     print(drawPolygonPoints);
     // 发送网络请求,成功后清除图形
@@ -404,7 +405,7 @@ class _MainAppState extends State<MainApp> {
       spatialReference: SpatialReference.wgs84,
     ); // 重置 PolygonBuilder
     // 清除之前的图形
-    drawPolygongraphicsOverlay.graphics.clear();
+    drawPolygonGraphicsOverlay.graphics.clear();
   }
 
   // 添加状态变量
@@ -419,7 +420,7 @@ class _MainAppState extends State<MainApp> {
         drawPolygonBuilder = PolygonBuilder(
           spatialReference: SpatialReference.wgs84,
         );
-        drawPolygongraphicsOverlay.graphics.clear();
+        drawPolygonGraphicsOverlay.graphics.clear();
       }
     });
   }
