@@ -8,6 +8,8 @@ import 'package:arcgis_flutter_newest/utils/point_util.dart';
 import 'package:arcgis_flutter_newest/widget/center_crosser.dart';
 import 'package:arcgis_maps/arcgis_maps.dart';
 import 'package:flutter/material.dart';
+import 'package:maps_toolkit/maps_toolkit.dart';
+import 'package:maps_toolkit/maps_toolkit.dart' as mapsTool;
 
 class MainApp extends StatefulWidget {
   const MainApp({super.key});
@@ -294,6 +296,7 @@ class _MainAppState extends State<MainApp> {
   var drawPolygonBuilder = PolygonBuilder(
     spatialReference: SpatialReference.wgs84,
   );
+  double drawPolygonArea = 0;
 
   // 绘制多边形打点
   onStartDrawPolygon() async {
@@ -325,6 +328,15 @@ class _MainAppState extends State<MainApp> {
       );
       drawPolygonPointsOverlay.graphics.add(pointGraphic);
     }
+
+    setState(() {
+      drawPolygonArea =
+          GeometryEngine.areaGeodetic(
+            geometry: polygon,
+            curveType: GeodeticCurveType.geodesic,
+          ).abs() /
+          667;
+    });
   }
 
   // 撤回上一步画地的点
@@ -453,6 +465,30 @@ class _MainAppState extends State<MainApp> {
     );
   }
 
+  Widget _buildDrawLandArea() {
+    return Positioned(
+      left: 150,
+      right: 150,
+      top: 100, // 距离顶部100像素
+      child: Container(
+        // 这里可以设置Container的样式
+        width: 300, // 设置宽度
+        height: 50, // 设置高度
+        decoration: BoxDecoration(
+          color: Colors.black.withOpacity(0.6),
+          borderRadius: BorderRadius.circular(10), // 设置10像素的圆角
+        ),
+
+        child: Center(
+          child: Text(
+            "${drawPolygonArea.toStringAsFixed(2)}亩",
+            style: TextStyle(color: Colors.white, fontSize: 15),
+          ),
+        ),
+      ),
+    );
+  }
+
   // 主视图
   Widget _buildView() {
     return Stack(
@@ -462,6 +498,7 @@ class _MainAppState extends State<MainApp> {
         _buildJumpButtonsView(),
         CenterCrosser(),
         _buildDrawButtonsView(),
+        if (isDrawingMode) _buildDrawLandArea(),
       ],
     );
   }
