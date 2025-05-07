@@ -312,13 +312,71 @@ class _MainAppState extends State<MainApp> {
     );
     // 清除之前的图形
     drawPolygongraphicsOverlay.graphics.clear();
-    // 添加新的图形
+
+    // 1. 添加新的图形
     drawPolygongraphicsOverlay.graphics.add(graphic);
-    print(drawPolygonPoint);
+    // 2. 为每个点添加点标记
+    for (var point in drawPolygonPoints) {
+      var pointGraphic = Graphic(
+        geometry: point,
+        symbol: GraphicsStyleConfig.drawPolygonPointSymbol,
+      );
+      drawPolygongraphicsOverlay.graphics.add(pointGraphic);
+    }
   }
 
   onFinishDrawPolygon() {}
-  onUndoLastPoint() {}
+  // 撤回上一步画地的点
+  onUndoLastPoint() {
+    if (drawPolygonPoints.isEmpty) {
+      showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            content: Text("没有可撤回的点"),
+            actions: [
+              TextButton(
+                onPressed: () {
+                  Navigator.of(context).pop();
+                },
+                child: Text('确定'),
+              ),
+            ],
+          );
+        },
+      );
+      return;
+    }
+    drawPolygonPoints.removeLast();
+    // 创建新的PolygonBuilder并添加剩余的点
+    var newPolygonBuilder = PolygonBuilder(
+      spatialReference: SpatialReference.wgs84,
+    );
+    for (var point in drawPolygonPoints) {
+      newPolygonBuilder.addPoint(point);
+    }
+
+    // 替换原有的几何图形
+    drawPolygonBuilder.replaceGeometry(newPolygonBuilder.toGeometry());
+    Polygon polygon = drawPolygonBuilder.toGeometry() as Polygon;
+    var graphic = Graphic(
+      geometry: polygon,
+      symbol: GraphicsStyleConfig.defaultPolygonSymbol,
+    );
+    // 清除之前的图形
+    drawPolygongraphicsOverlay.graphics.clear();
+    //  添加新的图形
+    drawPolygongraphicsOverlay.graphics.add(graphic);
+    // 2. 为每个点添加点标记
+    for (var point in drawPolygonPoints) {
+      var pointGraphic = Graphic(
+        geometry: point,
+        symbol: GraphicsStyleConfig.drawPolygonPointSymbol,
+      );
+      drawPolygongraphicsOverlay.graphics.add(pointGraphic);
+    }
+  }
+
   // 地图跳转按钮
   Widget _buildDrawButtonsView() {
     return Positioned(
