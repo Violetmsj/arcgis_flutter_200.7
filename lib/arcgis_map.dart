@@ -325,7 +325,6 @@ class _MainAppState extends State<MainApp> {
     }
   }
 
-  onFinishDrawPolygon() {}
   // 撤回上一步画地的点
   onUndoLastPoint() {
     if (drawPolygonPoints.isEmpty) {
@@ -375,6 +374,37 @@ class _MainAppState extends State<MainApp> {
       );
       drawPolygongraphicsOverlay.graphics.add(pointGraphic);
     }
+  }
+
+  // 完成绘制
+  onFinishDrawPolygon() {
+    if (drawPolygonPoints.length < 3) {
+      showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            content: Text("至少需要三个点才能构成一个多边形"),
+            actions: [
+              TextButton(
+                onPressed: () {
+                  Navigator.of(context).pop();
+                },
+                child: Text('确定'),
+              ),
+            ],
+          );
+        },
+      );
+    }
+    print(drawPolygonPoints);
+    // 发送网络请求,成功后清除图形
+    // 清空点位数组和 PolygonBuilder
+    drawPolygonPoints.clear();
+    drawPolygonBuilder = PolygonBuilder(
+      spatialReference: SpatialReference.wgs84,
+    ); // 重置 PolygonBuilder
+    // 清除之前的图形
+    drawPolygongraphicsOverlay.graphics.clear();
   }
 
   // 地图跳转按钮
