@@ -327,6 +327,39 @@ class _MainAppState extends State<MainApp> {
         symbol: GraphicsStyleConfig.drawPolygonPointSymbol,
       );
       drawPolygonPointsOverlay.graphics.add(pointGraphic);
+      // 如果不是第一个点，计算并显示距离
+      if (drawPolygonPoints.indexOf(point) > 0) {
+        // 获取前一个点
+        var previousPoint =
+            drawPolygonPoints[drawPolygonPoints.indexOf(point) - 1];
+
+        // 计算两点之间的距离（使用大地测量方法）
+        double distance =
+            GeometryEngine.distanceGeodetic(
+              point1: previousPoint,
+              point2: point,
+              curveType: GeodeticCurveType.geodesic,
+              distanceUnit: LinearUnit(unitId: LinearUnitId.meters),
+            ).distance;
+
+        // 创建文本符号
+        var textSymbol = TextSymbol(
+          text: "${distance.toStringAsFixed(0)}米",
+          color: Colors.white,
+          size: 16,
+        );
+
+        // 计算文本位置（两点的中点）
+        var midPoint = ArcGISPoint(
+          x: (previousPoint.x + point.x) / 2,
+          y: (previousPoint.y + point.y) / 2,
+          spatialReference: SpatialReference.wgs84,
+        );
+
+        // 添加文本图形
+        var textGraphic = Graphic(geometry: midPoint, symbol: textSymbol);
+        drawPolygonPointsOverlay.graphics.add(textGraphic);
+      }
     }
 
     setState(() {
