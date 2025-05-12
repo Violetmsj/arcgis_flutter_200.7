@@ -1,7 +1,10 @@
 import 'dart:async';
+import 'dart:io';
+import 'dart:typed_data';
 
 import 'package:arcgis_maps/arcgis_maps.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:maplibre_gl/maplibre_gl.dart';
 
 class MaplibreMap extends StatefulWidget {
@@ -18,8 +21,9 @@ class _MaplibreMapState extends State<MaplibreMap> {
 
   // 初始相机位置
   static const CameraPosition _initialCameraPosition = CameraPosition(
-    target: LatLng(44.341538, 86.008825),
-    zoom: 4.0,
+    // target: LatLng(44.341538, 86.008825),
+    target: LatLng(44.856219, 85.452456),
+    zoom: 15,
   );
   @override
   Widget build(BuildContext context) {
@@ -160,6 +164,28 @@ class _MaplibreMapState extends State<MaplibreMap> {
       }
     });
 
+    // 从资源文件加载
+    ByteData imageFile = await rootBundle.load('assets/image/test_image.png');
+    Uint8List imageBytes = imageFile.buffer.asUint8List();
+    LatLngQuad latLngQuad = LatLngQuad(
+      topLeft: LatLng(44.856219, 85.452456), // (yMax, xMin)
+      topRight: LatLng(44.856219, 85.458053), // (yMax, xMax)
+      bottomRight: LatLng(44.849842, 85.458053), // (yMin, xMax)
+      bottomLeft: LatLng(44.849842, 85.452456), // (yMin, xMin)
+    );
+    // 添加图片源
+    await controller.addImageSource(
+      'image-source-id',
+      imageBytes, // Uint8List类型的图片数据
+      latLngQuad, // 图片的四个角坐标
+    );
+    // 添加图片图层
+    await controller.addImageLayer(
+      'image-layer-id',
+      'image-source-id',
+      minzoom: 10,
+      maxzoom: 20,
+    );
     // 更新状态，隐藏加载指示器
     setState(() {
       _mapInitialized = true;
