@@ -118,11 +118,28 @@ class _MaplibreMapState extends State<MaplibreMap> {
       await controller.addLayer(
         "boundary",
         "layerId",
-        const LineLayerProperties(
-          lineColor: "#ff69b4",
-          lineWidth: 1,
-          lineCap: "round",
-          lineJoin: "round",
+        const FillLayerProperties(
+          fillColor: "#ff69b4",
+          fillOpacity: 0.5,
+          fillOutlineColor: "#ff69b4",
+        ),
+        sourceLayer: "boundary",
+      );
+      await controller.addLayer(
+        "boundary",
+        "textlayerId",
+        SymbolLayerProperties(
+          textField: [Expressions.get, "name"],
+          textFont: ['Open Sans Semibold'],
+          textSize: 12,
+          textOffset: [
+            Expressions.literal,
+            [0, 2],
+          ],
+          textAnchor: 'center',
+          textHaloColor: Colors.white.toHexStringRGB(),
+          textHaloWidth: 1,
+          textAllowOverlap: true,
         ),
         sourceLayer: "boundary",
       );
