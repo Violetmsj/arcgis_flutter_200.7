@@ -129,6 +129,19 @@ class _MaplibreMapState extends State<MaplibreMap> {
     } catch (e) {
       print(e);
     }
+    controller.onFeatureTapped.add((id, point, latLng, layerId) async {
+      // 只处理特定图层的点击事件
+      if (layerId == "layerId") {
+        List features = await controller.queryRenderedFeatures(
+          point,
+          [layerId],
+          ["all"],
+        );
+        print("点击了边界图层上的要素，ID: $id，坐标: $latLng");
+        print(features);
+        // 在这里处理点击事件
+      }
+    });
 
     // 更新状态，隐藏加载指示器
     setState(() {
