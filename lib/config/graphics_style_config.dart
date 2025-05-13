@@ -22,4 +22,10 @@ class GraphicsStyleConfig {
     color: Colors.transparent,
     outline: defaultLineSymbol,
   );
+  // 画地时点样式
+  static SimpleMarkerSymbol get drawPolygonPointSymbol => SimpleMarkerSymbol(
+    style: SimpleMarkerSymbolStyle.circle,
+    color: Colors.red,
+    size: 12,
+  );
 }
