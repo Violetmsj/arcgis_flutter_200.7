@@ -7,7 +7,7 @@ void main() {
   WidgetsFlutterBinding.ensureInitialized();
   runApp(
     const MaterialApp(
-      // home: MainApp(),
+      // home: ArcgisMap(),
       home: MaplibreMap(),
       // home: Placeholder(),
     ),
