@@ -8,8 +8,21 @@ class HomePage extends GetView<HomeController> {
 
   // 主视图
   Widget _buildView() {
-    return const Center(
-      child: Text("HomePage"),
+    return Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          ElevatedButton(
+            onPressed: controller.toArcgisMap,
+            child: const Text("ArcGIS 地图"),
+          ),
+          const SizedBox(height: 20),
+          ElevatedButton(
+            onPressed: controller.toMaplibreMap,
+            child: const Text("Maplibre 地图"),
+          ),
+        ],
+      ),
     );
   }
 
@@ -21,9 +34,7 @@ class HomePage extends GetView<HomeController> {
       builder: (_) {
         return Scaffold(
           appBar: AppBar(title: const Text("home")),
-          body: SafeArea(
-            child: _buildView(),
-          ),
+          body: SafeArea(child: _buildView()),
         );
       },
     );
