@@ -37,6 +37,7 @@ dependencies:
   arcgis_maps: ^200.7.0+4560
   maps_toolkit: ^3.1.0
   maplibre_gl: ^0.21.0
+  get: ^4.7.2
 
 dev_dependencies:
   flutter_test:

@@ -2,14 +2,28 @@ import 'package:arcgis_flutter_newest/arcgis_map.dart';
 import 'package:arcgis_flutter_newest/maplibre_map.dart';
 
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
+
+import 'common/routers/index.dart';
 
 void main() {
-  WidgetsFlutterBinding.ensureInitialized();
-  runApp(
-    const MaterialApp(
-      // home: ArcgisMap(),
-      home: MaplibreMap(),
-      // home: Placeholder(),
-    ),
-  );
+  runApp(const MyApp());
+}
+
+class MyApp extends StatelessWidget {
+  const MyApp({super.key});
+
+  // This widget is the root of your application.
+  @override
+  Widget build(BuildContext context) {
+    return GetMaterialApp(
+      title: 'MapDemo',
+      theme: ThemeData(
+        colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
+        useMaterial3: true,
+      ),
+      initialRoute: RouteNames.home,
+      getPages: RoutePages.list,
+    );
+  }
 }
