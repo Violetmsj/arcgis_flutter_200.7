@@ -216,7 +216,7 @@ class _MaplibreMapState extends State<MaplibreMap> {
         LineLayerProperties(
           lineColor: "#ffffff",
           lineWidth: 5,
-          lineOpacity: lineDisplay ? 1 : 0,
+          // lineOpacity: lineDisplay ? 1 : 0,
         ),
       );
       print('折线添加成功');
@@ -243,7 +243,8 @@ class _MaplibreMapState extends State<MaplibreMap> {
       LineLayerProperties(
         lineColor: "#ffffff",
         lineWidth: 5,
-        lineOpacity: lineDisplay ? 1 : 0,
+        // lineOpacity: lineDisplay ? 1 : 0,
+        visibility: lineDisplay ? "visible" : "none",
       ),
     );
   }
