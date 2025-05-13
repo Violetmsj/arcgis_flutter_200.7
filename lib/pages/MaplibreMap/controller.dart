@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:typed_data';
 import 'dart:io';
 
+import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:maplibre_gl/maplibre_gl.dart';
@@ -14,8 +15,9 @@ class MaplibreMapPageController extends GetxController {
   // 初始相机位置
   CameraPosition initialCameraPosition = CameraPosition(
     // target: LatLng(44.341538, 86.008825),
-    target: LatLng(44.856219, 85.452456), //贴图点
+    // target: LatLng(44.856219, 85.452456), //贴图点
     // target: LatLng(44.34094461041972, 86.00426167774084), //折线
+    target: LatLng(45.089596, 85.265665), //要素
     zoom: 14,
   );
   _initData() {
@@ -183,7 +185,87 @@ class MaplibreMapPageController extends GetxController {
         // lineOpacity: lineDisplay ? 1 : 0,
       ),
     );
-
+    // 添加面数据源
+    await controller.addSource(
+      "polygon-source",
+      const GeojsonSourceProperties(
+        data: {
+          "type": "Feature",
+          "properties": {
+            "id": "DNwHaco86QmoggkJxKpsCa",
+            "name": "测试地块2",
+            "areaComp": 355.49,
+            "location": "塔城地区 新疆维吾尔自治区塔城地区沙湾市兵团一二一团",
+            "soliType": "荒漠风沙土",
+          },
+          "geometry": {
+            "type": "Polygon",
+            "coordinates": [
+              [
+                [85.265665, 45.089596],
+                [85.264357, 45.08952],
+                [85.262812, 45.089982],
+                [85.261599, 45.089808],
+                [85.261589, 45.088868],
+                [85.259325, 45.088846],
+                [85.257211, 45.088944],
+                [85.257286, 45.092815],
+                [85.264367, 45.092663],
+                [85.265032, 45.091163],
+                [85.265269, 45.090876],
+                [85.265665, 45.089596],
+              ],
+            ],
+          },
+        },
+      ),
+    );
+    // 添加要素多边形图层
+    await controller.addLayer(
+      "polygon-source",
+      "polygon-layer",
+      FillLayerProperties(
+        fillOutlineColor: "#000",
+        fillOpacity: 0.5,
+        fillColor: "#ff69b4",
+      ),
+    );
+    controller.onFeatureTapped.add((id, point, latLng, layerId) async {
+      // 只处理特定图层的点击事件
+      if (layerId == "polygon-layer") {
+        List features = await controller.queryRenderedFeatures(
+          point,
+          [layerId],
+          ["all"],
+        );
+        if (features.isNotEmpty) {
+          var properties = features.first['properties'];
+          Get.dialog(
+            AlertDialog(
+              title: const Text('地块信息'),
+              content: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text('地块编号: ${properties["id"]}'),
+                  Text('地块名称: ${properties["name"]}'),
+                  Text('地块面积: ${properties["areaComp"]}'),
+                  Text('地块地点: ${properties["location"]}'),
+                  Text('地块类型: ${properties["soliType"]}'),
+                ],
+              ),
+              actions: [
+                TextButton(
+                  onPressed: () => Get.back(),
+                  child: const Text('关闭'),
+                ),
+              ],
+            ),
+          );
+        }
+        // 在这里处理点击事件
+      }
+    });
     // 更新状态，隐藏加载指示器
 
     mapInitialized = true;
