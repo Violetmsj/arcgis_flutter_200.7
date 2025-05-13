@@ -18,6 +18,7 @@ class _MaplibreMapState extends State<MaplibreMap> {
   final Completer<MapLibreMapController> _controller = Completer();
 
   bool _mapInitialized = false;
+  bool lineDisplay = true;
 
   // 初始相机位置
   static const CameraPosition _initialCameraPosition = CameraPosition(
@@ -212,10 +213,10 @@ class _MaplibreMapState extends State<MaplibreMap> {
       await controller.addLayer(
         "line-source",
         "line-layer",
-        const LineLayerProperties(
+        LineLayerProperties(
           lineColor: "#ffffff",
           lineWidth: 5,
-          lineOpacity: 1.0,
+          lineOpacity: lineDisplay ? 1 : 0,
         ),
       );
       print('折线添加成功');
@@ -233,6 +234,17 @@ class _MaplibreMapState extends State<MaplibreMap> {
     final controller = await _controller.future;
     controller.animateCamera(
       CameraUpdate.newCameraPosition(_initialCameraPosition),
+    );
+
+    lineDisplay = !lineDisplay;
+    // 更新图层属性
+    await controller.setLayerProperties(
+      "line-layer",
+      LineLayerProperties(
+        lineColor: "#ffffff",
+        lineWidth: 5,
+        lineOpacity: lineDisplay ? 1 : 0,
+      ),
     );
   }
 }
