@@ -22,8 +22,9 @@ class _MaplibreMapState extends State<MaplibreMap> {
   // 初始相机位置
   static const CameraPosition _initialCameraPosition = CameraPosition(
     // target: LatLng(44.341538, 86.008825),
-    target: LatLng(44.856219, 85.452456),
-    zoom: 15,
+    // target: LatLng(44.856219, 85.452456), //贴图点
+    target: LatLng(44.34094461041972, 86.00426167774084), //折线
+    zoom: 14,
   );
   @override
   Widget build(BuildContext context) {
@@ -63,7 +64,6 @@ class _MaplibreMapState extends State<MaplibreMap> {
   // 样式加载完成回调
   void _onStyleLoaded() async {
     final controller = await _controller.future;
-
     // 添加底图数据源
     await controller.addSource(
       "raster_source",
@@ -124,29 +124,29 @@ class _MaplibreMapState extends State<MaplibreMap> {
         "layerId",
         const FillLayerProperties(
           fillColor: "#ff69b4",
-          fillOpacity: 0.5,
+          fillOpacity: 0,
           fillOutlineColor: "#ff69b4",
         ),
         sourceLayer: "boundary",
       );
-      await controller.addLayer(
-        "boundary",
-        "textlayerId",
-        SymbolLayerProperties(
-          textField: [Expressions.get, "name"],
-          textFont: ['Open Sans Semibold'],
-          textSize: 12,
-          textOffset: [
-            Expressions.literal,
-            [0, 2],
-          ],
-          textAnchor: 'center',
-          textHaloColor: Colors.white.toHexStringRGB(),
-          textHaloWidth: 1,
-          textAllowOverlap: true,
-        ),
-        sourceLayer: "boundary",
-      );
+      // await controller.addLayer(
+      //   "boundary",
+      //   "textlayerId",
+      //   SymbolLayerProperties(
+      //     textField: [Expressions.get, "name"],
+      //     textFont: ['Open Sans Semibold'],
+      //     textSize: 12,
+      //     textOffset: [
+      //       Expressions.literal,
+      //       [0, 2],
+      //     ],
+      //     textAnchor: 'center',
+      //     textHaloColor: Colors.white.toHexStringRGB(),
+      //     textHaloWidth: 1,
+      //     textAllowOverlap: true,
+      //   ),
+      //   sourceLayer: "boundary",
+      // );
     } catch (e) {
       print(e);
     }
@@ -183,9 +183,45 @@ class _MaplibreMapState extends State<MaplibreMap> {
     await controller.addImageLayer(
       'image-layer-id',
       'image-source-id',
-      minzoom: 10,
-      maxzoom: 20,
+      // minzoom: 10,
+      // maxzoom: 20,
     );
+
+    try {
+      // 添加线数据源
+      await controller.addSource(
+        "line-source",
+        const GeojsonSourceProperties(
+          data: {
+            "type": "Feature",
+            "properties": {},
+            "geometry": {
+              "type": "LineString",
+              "coordinates": [
+                [86.00426167774084, 44.34094461041972],
+                [86.00517720325354, 44.337967341789394],
+                [86.00693672884825, 44.33682141116668],
+                [86.01185767847899, 44.336698631557404],
+              ],
+            },
+          },
+        ),
+      );
+
+      // 添加线图层
+      await controller.addLayer(
+        "line-source",
+        "line-layer",
+        const LineLayerProperties(
+          lineColor: "#ffffff",
+          lineWidth: 5,
+          lineOpacity: 1.0,
+        ),
+      );
+      print('折线添加成功');
+    } catch (e) {
+      print('添加折线时出错: $e');
+    }
     // 更新状态，隐藏加载指示器
     setState(() {
       _mapInitialized = true;
