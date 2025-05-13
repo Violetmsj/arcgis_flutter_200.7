@@ -11,14 +11,14 @@ import 'package:flutter/material.dart';
 import 'package:maps_toolkit/maps_toolkit.dart';
 import 'package:maps_toolkit/maps_toolkit.dart' as mapsTool;
 
-class MainApp extends StatefulWidget {
-  const MainApp({super.key});
+class ArcgisMap extends StatefulWidget {
+  const ArcgisMap({super.key});
 
   @override
-  State<MainApp> createState() => _MainAppState();
+  State<ArcgisMap> createState() => _ArcgisMapState();
 }
 
-class _MainAppState extends State<MainApp> {
+class _ArcgisMapState extends State<ArcgisMap> {
   final _mapViewController = ArcGISMapView.createController();
   late FeatureCollectionLayer _featureCollectionLayer; // 保存要素图层
   late Offset mapCenterOffset; // 地图中心屏幕坐标
