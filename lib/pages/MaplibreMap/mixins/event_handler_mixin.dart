@@ -1,7 +1,10 @@
 import 'package:arcgis_flutter_newest/pages/MaplibreMap/mixins/map_state_mixin.dart';
+
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:maplibre_gl/maplibre_gl.dart';
+
+import '../widgets/feature_polygon_dialog.dart';
 
 mixin EventHandlerMixin on MapStateMixin {
   void setupEventHandlers(MapLibreMapController controller) {
@@ -19,28 +22,7 @@ mixin EventHandlerMixin on MapStateMixin {
           );
           if (features.isNotEmpty) {
             var properties = features.first['properties'];
-            Get.dialog(
-              AlertDialog(
-                title: const Text('地块信息'),
-                content: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text('地块编号: ${properties["id"]}'),
-                    Text('地块名称: ${properties["name"]}'),
-                    Text('地块面积: ${properties["areaComp"]}'),
-                    Text('地块地点: ${properties["location"]}'),
-                    Text('地块类型: ${properties["soliType"]}'),
-                  ],
-                ),
-                actions: [
-                  TextButton(
-                    onPressed: () => Get.back(),
-                    child: const Text('关闭'),
-                  ),
-                ],
-              ),
-            );
+            Get.dialog(FeaturePolygonDialog(properties: properties));
           }
           // 在这里处理点击事件
         }
