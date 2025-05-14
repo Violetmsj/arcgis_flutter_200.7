@@ -1,309 +1,37 @@
-import 'dart:async';
-import 'dart:typed_data';
-import 'dart:io';
-
-import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:maplibre_gl/maplibre_gl.dart';
+import 'mixins/base_layer_mixin.dart';
+import 'mixins/event_handler_mixin.dart';
+import 'mixins/feature_layer_mixin.dart';
+import 'mixins/map_state_mixin.dart';
+import 'extensions/map_controller_extension.dart';
 
-class MaplibreMapPageController extends GetxController {
-  MaplibreMapPageController();
-  bool mapInitialized = false;
-  bool lineDisplay = true;
-  final Completer<MapLibreMapController> _controller = Completer();
-  // 初始相机位置
-  CameraPosition initialCameraPosition = CameraPosition(
-    // target: LatLng(44.341538, 86.008825),
-    // target: LatLng(44.856219, 85.452456), //贴图点
-    // target: LatLng(44.34094461041972, 86.00426167774084), //折线
-    target: LatLng(45.089596, 85.265665), //要素
-    zoom: 14,
-  );
-  _initData() {
-    update(["maplibremap"]);
-  }
-
-  // 地图创建完成回调
-  void onMapCreated(MapLibreMapController controller) {
-    _controller.complete(controller);
-  }
-
-  // 样式加载完成回调
+class MaplibreMapPageController extends GetxController
+    with MapStateMixin, BaseLayerMixin, FeatureLayerMixin, EventHandlerMixin {
   void onStyleLoaded() async {
-    final controller = await _controller.future;
-    // 添加底图数据源
-    await controller.addSource(
-      "raster_source",
-      const RasterSourceProperties(
-        tiles: [
-          "https://t1.tianditu.gov.cn/img_w/wmts?SERVICE=WMTS&REQUEST=GetTile&VERSION=1.0.0&LAYER=img&STYLE=default&TILEMATRIXSET=w&FORMAT=tiles&TILEMATRIX={z}&TILEROW={y}&TILECOL={x}&tk=2e4da3804eb62318a09cd95a01f8b17d",
-        ],
-        tileSize: 256,
-        scheme: "xyz", // 添加这个配置
-        minzoom: 0, // 添加最小缩放级别
-        maxzoom: 18, // 添加最大缩放级别
-      ),
-    );
-    // 添加标注数据源
-    await controller.addSource(
-      "annoation_source",
-      const RasterSourceProperties(
-        tiles: [
-          "https://t0.tianditu.gov.cn/cia_w/wmts?SERVICE=WMTS&REQUEST=GetTile&VERSION=1.0.0&LAYER=cia&STYLE=default&TILEMATRIXSET=w&FORMAT=tiles&TILEMATRIX={z}&TILEROW={y}&TILECOL={x}&tk=2e4da3804eb62318a09cd95a01f8b17d",
-        ],
-        tileSize: 256,
-        scheme: "xyz", // 添加这个配置
-        minzoom: 0, // 添加最小缩放级别
-        maxzoom: 18, // 添加最大缩放级别
-      ),
-    );
-    // 添加矢量图层数据源
-    await controller.addSource(
-      "boundary",
-      const VectorSourceProperties(
-        tiles: [
-          "http://192.168.31.31:8080/jtytapi/web/boundary/tiles/{z}/{x}/{y}/?year=2025&token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzQ3NzA2NDM1LCJpYXQiOjE3NDY4NDI0MzUsImp0aSI6Ijc2YjY1YjZkNzVmMzQ1NzE5YzIxZTRiMWFiY2NiYmYxIiwidXNlcl9pZCI6IlM0eUJ5MmJuWGhFeEc3dmNFTVA5SGsiLCJ1c2VybmFtZSI6Ilx1OWE2Y1x1NGUxNlx1Njc3MCIsInVzZXIiOiJtc2oxMzY0OTk5NTIyOSIsImNsaWVudF90eXBlIjoid2ViIn0.6mvtw5SX0Oe7vxkTsCQCzgpofg_iE1uo22Z4HjpE2vM&parent=3138&qualified=",
-        ],
-        // tileSize: 512,
-        scheme: "xyz", // 添加这个配置
-        minzoom: 0, // 添加最小缩放级别
-        maxzoom: 18, // 添加最大缩放级别
-      ),
-    );
+    final controller = await mapController.future;
 
-    // 添加栅格图层
-    await controller.addRasterLayer(
-      "raster_source",
-      "raster_layer",
-      const RasterLayerProperties(rasterOpacity: 1, rasterFadeDuration: 300),
-    );
-
-    // 添加标注图层
-    await controller.addRasterLayer(
-      "annoation_source",
-      "annoation_layer",
-      const RasterLayerProperties(rasterOpacity: 1, rasterFadeDuration: 300),
-    );
-    // // 添加矢量图层
-    try {
-      await controller.addLayer(
-        "boundary",
-        "layerId",
-        const FillLayerProperties(
-          fillColor: "#ff69b4",
-          fillOpacity: 0,
-          fillOutlineColor: "#ff69b4",
-        ),
-        sourceLayer: "boundary",
-      );
-      // await controller.addLayer(
-      //   "boundary",
-      //   "textlayerId",
-      //   SymbolLayerProperties(
-      //     textField: [Expressions.get, "name"],
-      //     textFont: ['Open Sans Semibold'],
-      //     textSize: 12,
-      //     textOffset: [
-      //       Expressions.literal,
-      //       [0, 2],
-      //     ],
-      //     textAnchor: 'center',
-      //     textHaloColor: Colors.white.toHexStringRGB(),
-      //     textHaloWidth: 1,
-      //     textAllowOverlap: true,
-      //   ),
-      //   sourceLayer: "boundary",
-      // );
-    } catch (e) {
-      print(e);
-    }
-    controller.onFeatureTapped.add((id, point, latLng, layerId) async {
-      // 只处理特定图层的点击事件
-      if (layerId == "layerId") {
-        List features = await controller.queryRenderedFeatures(
-          point,
-          [layerId],
-          ["all"],
-        );
-        print("点击了边界图层上的要素，ID: $id，坐标: $latLng");
-        print(features);
-        // 在这里处理点击事件
-      }
-    });
-
-    // 从资源文件加载
-    ByteData imageFile = await rootBundle.load('assets/image/test_image.png');
-    Uint8List imageBytes = imageFile.buffer.asUint8List();
-    LatLngQuad latLngQuad = LatLngQuad(
-      topLeft: LatLng(44.856219, 85.452456), // (yMax, xMin)
-      topRight: LatLng(44.856219, 85.458053), // (yMax, xMax)
-      bottomRight: LatLng(44.849842, 85.458053), // (yMin, xMax)
-      bottomLeft: LatLng(44.849842, 85.452456), // (yMin, xMin)
-    );
-    // 添加图片源
-    await controller.addImageSource(
-      'image-source-id',
-      imageBytes, // Uint8List类型的图片数据
-      latLngQuad, // 图片的四个角坐标
-    );
-    // 添加图片图层
-    await controller.addImageLayer(
-      'image-layer-id',
-      'image-source-id',
-      // minzoom: 10,
-      // maxzoom: 20,
-    );
-
-    // 添加线数据源
-    await controller.addSource(
-      "line-source",
-      const GeojsonSourceProperties(
-        data: {
-          "type": "Feature",
-          "properties": {},
-          "geometry": {
-            "type": "LineString",
-            "coordinates": [
-              [86.00426167774084, 44.34094461041972],
-              [86.00517720325354, 44.337967341789394],
-              [86.00693672884825, 44.33682141116668],
-              [86.01185767847899, 44.336698631557404],
-            ],
-          },
-        },
-      ),
-    );
-
-    // 添加线图层
-    await controller.addLayer(
-      "line-source",
-      "line-layer",
-      LineLayerProperties(
-        lineColor: "#ffffff",
-        lineWidth: 5,
-        // lineOpacity: lineDisplay ? 1 : 0,
-      ),
-    );
-    // 添加面数据源
-    await controller.addSource(
-      "polygon-source",
-      const GeojsonSourceProperties(
-        data: {
-          "type": "Feature",
-          "properties": {
-            "id": "DNwHaco86QmoggkJxKpsCa",
-            "name": "测试地块2",
-            "areaComp": 355.49,
-            "location": "塔城地区 新疆维吾尔自治区塔城地区沙湾市兵团一二一团",
-            "soliType": "荒漠风沙土",
-          },
-          "geometry": {
-            "type": "Polygon",
-            "coordinates": [
-              [
-                [85.265665, 45.089596],
-                [85.264357, 45.08952],
-                [85.262812, 45.089982],
-                [85.261599, 45.089808],
-                [85.261589, 45.088868],
-                [85.259325, 45.088846],
-                [85.257211, 45.088944],
-                [85.257286, 45.092815],
-                [85.264367, 45.092663],
-                [85.265032, 45.091163],
-                [85.265269, 45.090876],
-                [85.265665, 45.089596],
-              ],
-            ],
-          },
-        },
-      ),
-    );
-    // 添加要素多边形图层
-    await controller.addLayer(
-      "polygon-source",
-      "polygon-layer",
-      FillLayerProperties(
-        fillOutlineColor: "#000",
-        fillOpacity: 0.5,
-        fillColor: "#ff69b4",
-      ),
-    );
-    controller.onFeatureTapped.add((id, point, latLng, layerId) async {
-      // 只处理特定图层的点击事件
-      if (layerId == "polygon-layer") {
-        List features = await controller.queryRenderedFeatures(
-          point,
-          [layerId],
-          ["all"],
-        );
-        if (features.isNotEmpty) {
-          var properties = features.first['properties'];
-          Get.dialog(
-            AlertDialog(
-              title: const Text('地块信息'),
-              content: Column(
-                mainAxisSize: MainAxisSize.min,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text('地块编号: ${properties["id"]}'),
-                  Text('地块名称: ${properties["name"]}'),
-                  Text('地块面积: ${properties["areaComp"]}'),
-                  Text('地块地点: ${properties["location"]}'),
-                  Text('地块类型: ${properties["soliType"]}'),
-                ],
-              ),
-              actions: [
-                TextButton(
-                  onPressed: () => Get.back(),
-                  child: const Text('关闭'),
-                ),
-              ],
-            ),
-          );
-        }
-        // 在这里处理点击事件
-      }
-    });
-    // 更新状态，隐藏加载指示器
+    await addBaseLayers(controller);
+    await addFeatureLayers(controller);
+    setupEventHandlers(controller);
 
     mapInitialized = true;
     update(['maplibremap']);
   }
 
-  // 重置相机位置
   void resetCamera() async {
-    final controller = await _controller.future;
-    controller.animateCamera(
+    final controller = await mapController.future;
+    await controller.animateCamera(
       CameraUpdate.newCameraPosition(initialCameraPosition),
     );
 
     lineDisplay = !lineDisplay;
-    // 更新图层属性
-    await controller.setLayerProperties(
-      "line-layer",
-      LineLayerProperties(
-        lineColor: "#ffffff",
-        lineWidth: 5,
-        // lineOpacity: lineDisplay ? 1 : 0,
-        visibility: lineDisplay ? "visible" : "none",
-      ),
-    );
+    await controller.toggleLayerVisibility("line-layer", lineDisplay);
   }
-  // @override
-  // void onInit() {
-  //   super.onInit();
-  // }
 
   @override
   void onReady() {
     super.onReady();
-    _initData();
+    update(["maplibremap"]);
   }
-
-  // @override
-  // void onClose() {
-  //   super.onClose();
-  // }
 }
