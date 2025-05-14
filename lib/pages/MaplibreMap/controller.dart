@@ -21,12 +21,20 @@ class MaplibreMapPageController extends GetxController
 
   void resetCamera() async {
     final controller = await mapController.future;
-    await controller.animateCamera(
+    await controller.moveCamera(
       CameraUpdate.newCameraPosition(initialCameraPosition),
     );
 
     lineDisplay = !lineDisplay;
     await controller.toggleLayerVisibility("line-layer", lineDisplay);
+  }
+
+  void updateCamera(CameraPosition cameraPosition) async {
+    final controller = await mapController.future;
+    await controller.moveCamera(
+      CameraUpdate.newCameraPosition(cameraPosition),
+      // duration: Duration(milliseconds: 3000),
+    );
   }
 
   @override
