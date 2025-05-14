@@ -42,11 +42,15 @@ mixin DrawPolygonMixin on MapStateMixin {
       //闭合多边形
       coordinates.add(coordinates[0]);
       // 检查数据源是否存在
-      final drawLandSourceExists = await isSourceExists("draw-land-source");
-      final drawLandlayerExists = await isLayerExists("draw-land-layer");
+      final drawLandSourceExists = await isSourceExists(
+        "draw-land-polygon-source",
+      );
+      final drawLandlayerExists = await isLayerExists(
+        "draw-land-polygon-layer",
+      );
       // 如果存在，则更新数据源，否则添加数据源
       if (drawLandSourceExists) {
-        controller.setGeoJsonSource("draw-land-source", {
+        controller.setGeoJsonSource("draw-land-polygon-source", {
           "type": "Feature",
           "properties": {},
           "geometry": {
@@ -57,7 +61,7 @@ mixin DrawPolygonMixin on MapStateMixin {
       } else {
         // 添加画地数据源
         await controller.addSource(
-          "draw-land-source",
+          "draw-land-polygon-source",
           GeojsonSourceProperties(
             data: {
               "type": "Feature",
@@ -73,8 +77,8 @@ mixin DrawPolygonMixin on MapStateMixin {
       //如果画地图层不存在，则添加
       if (!drawLandlayerExists) {
         await controller.addLayer(
-          "draw-land-source",
-          "draw-land-layer",
+          "draw-land-polygon-source",
+          "draw-land-polygon-layer",
           FillLayerProperties(
             fillColor: "#808080",
             fillOutlineColor: "#ffffff",
@@ -95,7 +99,7 @@ mixin DrawPolygonMixin on MapStateMixin {
       if (coordinates.isNotEmpty) {
         if (coordinates.length > 2) {
           coordinates.add(coordinates[0]);
-          controller.setGeoJsonSource("draw-land-source", {
+          controller.setGeoJsonSource("draw-land-polygon-source", {
             "type": "Feature",
             "properties": {},
             "geometry": {
@@ -104,7 +108,7 @@ mixin DrawPolygonMixin on MapStateMixin {
             },
           });
         } else {
-          await controller.removeLayer("draw-land-layer");
+          await controller.removeLayer("draw-land-polygon-layer");
         }
       }
       update(["maplibremap"]);
