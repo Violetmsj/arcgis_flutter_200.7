@@ -1,13 +1,17 @@
+import 'dart:math';
+
 import 'package:get/get.dart';
 import 'package:maplibre_gl/maplibre_gl.dart';
-import 'mixins/base_layer_mixin.dart';
-import 'mixins/event_handler_mixin.dart';
-import 'mixins/feature_layer_mixin.dart';
-import 'mixins/map_state_mixin.dart';
+import 'mixins/index.dart';
 import 'extensions/map_controller_extension.dart';
 
 class MaplibreMapPageController extends GetxController
-    with MapStateMixin, BaseLayerMixin, FeatureLayerMixin, EventHandlerMixin {
+    with
+        MapStateMixin,
+        BaseLayerMixin,
+        FeatureLayerMixin,
+        EventHandlerMixin,
+        DrawPolygonMixin {
   void onStyleLoaded() async {
     final controller = await mapController.future;
 
