@@ -1,4 +1,4 @@
-import 'package:arcgis_flutter_newest/widget/center_crosser.dart';
+import 'package:arcgis_flutter_newest/common/widgets/index.dart';
 import 'package:arcgis_maps/arcgis_maps.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
