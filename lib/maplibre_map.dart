@@ -2,7 +2,6 @@ import 'dart:async';
 import 'dart:io';
 import 'dart:typed_data';
 
-import 'package:arcgis_maps/arcgis_maps.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:maplibre_gl/maplibre_gl.dart';
@@ -47,13 +46,12 @@ class _MaplibreMapState extends State<MaplibreMap> {
         ],
       ),
       // 添加一个按钮来重置地图视角
-      floatingActionButton:
-          _mapInitialized
-              ? FloatingActionButton(
-                onPressed: _resetCamera,
-                child: const Icon(Icons.refresh),
-              )
-              : null,
+      floatingActionButton: _mapInitialized
+          ? FloatingActionButton(
+              onPressed: _resetCamera,
+              child: const Icon(Icons.refresh),
+            )
+          : null,
     );
   }
 

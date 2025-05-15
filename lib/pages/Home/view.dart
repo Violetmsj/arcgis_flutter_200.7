@@ -12,10 +12,6 @@ class HomePage extends GetView<HomeController> {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          ElevatedButton(
-            onPressed: controller.toArcgisMap,
-            child: const Text("ArcGIS 地图"),
-          ),
           const SizedBox(height: 20),
           ElevatedButton(
             onPressed: controller.toMaplibreMap,

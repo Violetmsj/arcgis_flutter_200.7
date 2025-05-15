@@ -72,29 +72,28 @@ mixin DrawPolygonMixin on MapStateMixin {
     if (drawLandPolygonSourceExists) {
       controller.setGeoJsonSource("draw-land-polygon-source", {
         "type": "FeatureCollection",
-        "features":
-            [
-              coordinates.length >= 3
-                  ? {
-                    "type": "Feature",
-                    "geometry": {
-                      "type": "Polygon",
-                      "coordinates": [coordinates],
-                    },
-                  }
-                  : null,
-              {
-                "type": "Feature",
-                "geometry": {
-                  "type": "MultiPoint",
-                  "coordinates": [
-                    ...(drawPolygonPoints
-                        .map((e) => [e.longitude, e.latitude])
-                        .toList()),
-                  ],
-                },
-              },
-            ].where((f) => f != null).toList(),
+        "features": [
+          coordinates.length >= 3
+              ? {
+                  "type": "Feature",
+                  "geometry": {
+                    "type": "Polygon",
+                    "coordinates": [coordinates],
+                  },
+                }
+              : null,
+          {
+            "type": "Feature",
+            "geometry": {
+              "type": "MultiPoint",
+              "coordinates": [
+                ...(drawPolygonPoints
+                    .map((e) => [e.longitude, e.latitude])
+                    .toList()),
+              ],
+            },
+          },
+        ].where((f) => f != null).toList(),
       });
       print("更新数据源");
     } else {
@@ -119,10 +118,9 @@ mixin DrawPolygonMixin on MapStateMixin {
                   "type": "Feature",
                   "geometry": {
                     "type": "MultiPoint",
-                    "coordinates":
-                        drawPolygonPoints
-                            .map((e) => [e.longitude, e.latitude])
-                            .toList(),
+                    "coordinates": drawPolygonPoints
+                        .map((e) => [e.longitude, e.latitude])
+                        .toList(),
                   },
                 },
               ],
@@ -134,9 +132,10 @@ mixin DrawPolygonMixin on MapStateMixin {
         print(e);
       }
     }
-    //如果画地图层不存在，则添加
+    //如果画地图层存在，则删除
     if (drawLandPolygonLayerExists) {
       await controller.removeLayer("draw-land-polygon-layer");
+      print("删除画地图图层");
     }
     await controller.addLayer(
       "draw-land-polygon-source",
