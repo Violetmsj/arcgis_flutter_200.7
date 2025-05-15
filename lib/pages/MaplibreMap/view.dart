@@ -54,6 +54,14 @@ class MaplibreMapPage extends GetView<MaplibreMapPageController> {
             onPressed: controller.toggleDrawingMode,
             child: Text(controller.isDrawingMode ? "结束画地" : "开始画地"),
           ),
+          // ElevatedButton(
+          //   onPressed: controller.addSourceTest,
+          //   child: Text("添加源"),
+          // ),
+          // ElevatedButton(
+          //   onPressed: controller.sourceExistsTest,
+          //   child: Text("检测源"),
+          // ),
           if (controller.isDrawingMode) ...[
             ElevatedButton(
               onPressed: controller.onDrawPolygonPoint,
